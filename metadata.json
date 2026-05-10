@@ -1,0 +1,8 @@
+{
+  "name": "MasterCode",
+  "description": "A high-performance, Matrix-themed learning platform with AI-driven mentoring and microfrontend architecture.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

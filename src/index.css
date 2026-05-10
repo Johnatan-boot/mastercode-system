@@ -1,0 +1,225 @@
+@import "tailwindcss";
+
+@theme {
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  
+  /* Matrix Theme - Professional & Smooth */
+  --color-matrix-green: #00FF41;
+  --color-matrix-green-glow: rgba(0, 255, 65, 0.15);
+  --color-matrix-dark: #080808;
+  --color-matrix-black: #030303;
+  --color-matrix-surface: #0a0a0a;
+  --color-matrix-accent: #121212;
+  
+  /* Ironman Theme - High-Tech & Sleek */
+  --color-iron-red: #ea1f26;
+  --color-iron-gold: #ffcc00;
+  --color-iron-blue: #00d4ff;
+  --color-iron-dark: #050505;
+  --color-iron-surface: #0a0a0a;
+  --color-iron-accent: #121212;
+}
+
+@layer base {
+  body {
+    @apply bg-black text-gray-200 font-sans selection:bg-matrix-green selection:text-black transition-colors duration-500 antialiased;
+  }
+  
+  body.theme-matrix {
+    @apply bg-[var(--color-matrix-black)] text-gray-400;
+  }
+  
+  body.theme-ironman {
+    @apply bg-[var(--color-iron-dark)] text-gray-300;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-mono tracking-tight font-bold text-white;
+  }
+}
+
+@layer components {
+  .matrix-card {
+    @apply bg-matrix-surface/60 border border-matrix-green/10 rounded-3xl p-6 backdrop-blur-3xl shadow-[0_8px_32px_rgba(0,0,0,0.8)] hover:border-matrix-green/30 hover:shadow-[0_0_40px_rgba(0,255,65,0.05)] transition-all duration-500 relative overflow-hidden;
+  }
+
+  .matrix-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.03), transparent);
+    animation: shimmer 8s infinite;
+    pointer-events: none;
+  }
+
+  .matrix-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: conic-gradient(
+      from var(--beam-angle, 0deg),
+      transparent 0deg,
+      transparent 280deg,
+      var(--color-matrix-green) 360deg
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: beam-rotate 4s linear infinite;
+    pointer-events: none;
+    opacity: 0.2;
+  }
+
+  .matrix-card:hover::after {
+    opacity: 0.6;
+    animation-duration: 2s;
+  }
+  
+  .ironman-card {
+    @apply bg-iron-surface/60 border border-iron-blue/10 rounded-3xl p-6 backdrop-blur-3xl shadow-[0_12px_48px_rgba(0,0,0,0.9)] hover:border-iron-blue/30 hover:shadow-[0_0_40px_rgba(0,212,255,0.05)] transition-all duration-500 relative overflow-hidden;
+  }
+
+  .ironman-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.05), transparent);
+    animation: shimmer 6s infinite;
+    pointer-events: none;
+  }
+
+  .ironman-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: conic-gradient(
+      from var(--beam-angle, 0deg),
+      transparent 0deg,
+      transparent 280deg,
+      var(--color-iron-red) 300deg,
+      var(--color-iron-gold) 330deg,
+      var(--color-iron-blue) 360deg
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: beam-rotate 4s linear infinite;
+    pointer-events: none;
+    opacity: 0.4;
+  }
+
+  .ironman-card:hover::after {
+    opacity: 1;
+    animation-duration: 2s;
+  }
+
+  @property --beam-angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  @keyframes beam-rotate {
+    from { --beam-angle: 0deg; }
+    to { --beam-angle: 360deg; }
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%) skewX(-15deg); }
+    100% { transform: translateX(300%) skewX(-15deg); }
+  }
+  
+  .matrix-btn {
+    @apply px-6 py-3 bg-matrix-green/5 border border-matrix-green/20 text-matrix-green hover:bg-matrix-green hover:text-black hover:shadow-[0_0_30px_rgba(0,255,65,0.4)] transition-all duration-300 uppercase tracking-[0.25em] text-[10px] font-bold disabled:opacity-50 rounded-xl;
+  }
+  
+  .ironman-btn {
+    @apply px-6 py-3 bg-iron-red text-white border border-white/10 hover:bg-iron-gold hover:text-black hover:shadow-[0_0_30px_rgba(255,204,0,0.4)] transition-all duration-300 uppercase tracking-[0.25em] text-[10px] font-black rounded-xl shadow-xl;
+  }
+
+  .matrix-input {
+    @apply bg-black/80 border border-matrix-green/20 text-matrix-green px-4 py-3.5 rounded-2xl focus:outline-none focus:border-matrix-green/50 focus:ring-1 focus:ring-matrix-green/30 transition-all placeholder:text-matrix-green/30 font-mono text-sm shadow-inner;
+  }
+  
+  .ironman-input {
+    @apply bg-iron-accent/80 border border-iron-blue/20 text-iron-blue px-4 py-3.5 rounded-2xl focus:outline-none focus:border-iron-blue/50 focus:ring-2 focus:ring-iron-blue/20 transition-all placeholder:text-iron-blue/30 font-mono text-sm shadow-inner;
+  }
+
+  .glass-panel {
+    @apply backdrop-blur-3xl bg-white/5 border border-white/10;
+  }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
+}
+
+/* Digital Rain Effect - More Subtle */
+.matrix-rain {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.08;
+  filter: blur(0.5px);
+}
+
+/* Ironman HUD Effect - More Immersive */
+.ironman-hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  background: 
+    radial-gradient(circle at 50% 50%, transparent 0%, rgba(0, 212, 255, 0.03) 100%),
+    linear-gradient(rgba(0, 212, 255, 0.01) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.01) 1px, transparent 1px);
+  background-size: 100% 100%, 60px 60px, 60px 60px;
+  opacity: 0.6;
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.scanline {
+  width: 100%;
+  height: 150px;
+  z-index: 10;
+  background: linear-gradient(0deg, rgba(0, 255, 65, 0) 0%, rgba(0, 255, 65, 0.05) 50%, rgba(0, 255, 65, 0) 100%);
+  opacity: 0.05;
+  position: fixed;
+  bottom: 100%;
+  animation: scanline 12s linear infinite;
+  pointer-events: none;
+}
+
+.scanline-iron {
+  background: linear-gradient(0deg, rgba(0, 212, 255, 0) 0%, rgba(0, 212, 255, 0.05) 50%, rgba(0, 212, 255, 0) 100%);
+}

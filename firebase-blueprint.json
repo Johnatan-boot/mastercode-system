@@ -1,0 +1,53 @@
+{
+  "entities": {
+    "Post": {
+      "title": "Post",
+      "description": "A blog post or community discussion entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "excerpt": { "type": "string" },
+        "content": { "type": "string" },
+        "author": { "type": "string" },
+        "authorRole": { "type": "string" },
+        "authorId": { "type": "string" },
+        "date": { "type": "string" },
+        "readTime": { "type": "string" },
+        "hasAudio": { "type": "boolean" },
+        "hasVideo": { "type": "boolean" },
+        "image": { "type": "string" },
+        "type": { "type": "string", "enum": ["article", "podcast", "video", "discussion"] },
+        "likes": { "type": "number" },
+        "comments": { "type": "number" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "author", "type", "createdAt"]
+    },
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "firestore": {
+    "/posts/{postId}": {
+      "schema": "Post",
+      "description": "Unified collection for all community and blog posts"
+    },
+    "/users/{uid}": {
+      "schema": "User",
+      "description": "User profiles"
+    }
+  }
+}
