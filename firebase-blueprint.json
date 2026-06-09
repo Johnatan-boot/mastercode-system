@@ -17,6 +17,8 @@
         "hasAudio": { "type": "boolean" },
         "hasVideo": { "type": "boolean" },
         "image": { "type": "string" },
+        "videoUrl": { "type": "string" },
+        "audioUrl": { "type": "string" },
         "type": { "type": "string", "enum": ["article", "podcast", "video", "discussion"] },
         "likes": { "type": "number" },
         "comments": { "type": "number" },

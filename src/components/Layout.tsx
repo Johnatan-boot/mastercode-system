@@ -41,7 +41,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => typeof window !== 'undefined' ? window.innerWidth >= 1024 : false);
   const isIron = theme === 'ironman';
 
   const menuItems = [
@@ -145,6 +145,35 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               </nav>
 
               <div className={`mt-auto pt-6 border-t ${isIron ? 'border-iron-blue/10' : 'border-matrix-green/10'}`}>
+                {/* Mobile stats (visible only inside the sidebar on mobile) */}
+                <div className="block md:hidden px-4 mb-4 space-y-3">
+                  {/* XP Bar */}
+                  <div className="flex flex-col gap-1">
+                    <div className="flex justify-between text-[9px] font-bold uppercase tracking-tighter">
+                      <span className={isIron ? 'text-iron-blue' : 'text-matrix-green'}>Nível {user?.level || 1}</span>
+                      <span className="opacity-50">{user?.xp || 0} / {(user?.level || 1) * 1000} XP</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                      <div 
+                        style={{ width: `${((user?.xp % 1000) / 1000) * 100}%` }}
+                        className={`h-full ${isIron ? 'bg-iron-blue' : 'bg-matrix-green'}`}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Streak & Rank */}
+                  <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-widest gap-2">
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 border border-white/5">
+                      <Flame size={10} className="text-orange-500 shrink-0" />
+                      <span>{user?.streak || 0} Dias</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 border border-white/5">
+                      <Trophy size={10} className={isIron ? 'text-iron-gold shrink-0' : 'text-matrix-green shrink-0'} />
+                      <span>Rank #124</span>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="flex items-center gap-3 px-4 py-3 mb-4">
                   <UserCircle size={24} className="opacity-50 shrink-0" />
                   <div className="flex flex-col min-w-0">
@@ -219,7 +248,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </header>
 
-        <div className="p-4 md:p-8">
+        <div className="p-3 sm:p-5 md:p-8">
           {children}
         </div>
       </main>

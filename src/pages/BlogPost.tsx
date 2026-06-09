@@ -3,9 +3,15 @@ import { motion } from 'framer-motion';
 import { useTheme } from '../hooks/useTheme';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Mic, Share2, Heart, MessageCircle, Play, Loader2 } from 'lucide-react';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, increment } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import ReactMarkdown from 'react-markdown';
+
+function getYouTubeId(url: string) {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+}
 
 export const BlogPost: React.FC = () => {
   const { theme } = useTheme();
@@ -58,6 +64,19 @@ export const BlogPost: React.FC = () => {
   }
 
   const currentPost = post;
+  const videoId = currentPost.videoUrl ? getYouTubeId(currentPost.videoUrl) : null;
+
+  const handleLike = async () => {
+    if (!id) return;
+    try {
+      await updateDoc(doc(db, 'posts', id), {
+        likes: increment(1)
+      });
+      setPost((prev: any) => ({ ...prev, likes: (prev.likes || 0) + 1 }));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, `posts/${id}`);
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20">
@@ -104,8 +123,23 @@ export const BlogPost: React.FC = () => {
         </div>
 
         <div className="p-8 md:p-12">
+          {/* Video Player */}
+          {videoId && (
+            <div className="mb-12 aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/5">
+              <iframe
+                width="100%"
+                height="100%"
+                src={`https://www.youtube.com/embed/${videoId}`}
+                title="YouTube video player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            </div>
+          )}
+
           {/* Podcast Player Area - Optional */}
-          {(currentPost.hasAudio || currentPost.type === 'podcast') && (
+          {(currentPost.hasAudio || currentPost.type === 'podcast' || currentPost.audioUrl) && (
             <div className={`mb-12 p-6 rounded-xl flex items-center gap-6 border ${isIron ? 'bg-iron-blue/5 border-iron-blue/20' : 'bg-matrix-green/5 border-matrix-green/20'}`}>
                <button 
                  onClick={() => setIsPlaying(!isPlaying)}
@@ -115,10 +149,22 @@ export const BlogPost: React.FC = () => {
                </button>
                <div className="flex-1">
                  <h4 className="text-sm font-bold uppercase tracking-widest mb-1">Ouça a versão Podcast</h4>
-                 <p className="text-xs opacity-60 font-mono mb-3">00:00 / --:--</p>
-                 <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
-                   <div className={`h-full w-0 rounded-full ${isIron ? 'bg-iron-blue' : 'bg-matrix-green'}`} />
-                 </div>
+                 {currentPost.audioUrl ? (
+                   <audio 
+                     src={currentPost.audioUrl} 
+                     controls={isPlaying}
+                     className="w-full mt-2 h-8"
+                     onPlay={() => setIsPlaying(true)}
+                     onPause={() => setIsPlaying(false)}
+                   />
+                 ) : (
+                    <>
+                      <p className="text-xs opacity-60 font-mono mb-3">00:00 / --:--</p>
+                      <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                        <div className={`h-full w-0 rounded-full ${isIron ? 'bg-iron-blue' : 'bg-matrix-green'}`} />
+                      </div>
+                    </>
+                 )}
                </div>
             </div>
           )}
@@ -130,8 +176,11 @@ export const BlogPost: React.FC = () => {
 
           <div className="mt-16 pt-8 border-t border-white/10 flex items-center justify-between">
             <div className="flex gap-4">
-              <button className={`flex items-center gap-2 text-xs uppercase tracking-widest font-bold transition-colors ${isIron ? 'text-iron-blue hover:text-white' : 'text-matrix-green hover:text-white'}`}>
-                <Heart size={16} /> {currentPost.likes || 0} Likes
+              <button 
+                onClick={handleLike}
+                className={`flex items-center gap-2 text-xs uppercase tracking-widest font-bold transition-colors ${isIron ? 'text-iron-blue hover:text-white' : 'text-matrix-green hover:text-white'}`}
+              >
+                <Heart size={16} fill={currentPost.likes > 0 ? "currentColor" : "none"} /> {currentPost.likes || 0} Likes
               </button>
               <button className={`flex items-center gap-2 text-xs uppercase tracking-widest font-bold transition-colors ${isIron ? 'text-iron-blue hover:text-white' : 'text-matrix-green hover:text-white'}`}>
                 <MessageCircle size={16} /> {currentPost.comments || 0} Comentários

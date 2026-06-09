@@ -50,6 +50,7 @@ export const VirtualRoom: React.FC = () => {
   const [modules, setModules] = useState<Module[]>([]);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => typeof window !== 'undefined' ? window.innerWidth >= 1024 : false);
   
   // Chat State
   const [messages, setMessages] = useState<Message[]>([
@@ -241,58 +242,93 @@ export const VirtualRoom: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-black text-gray-200">
       {/* Sidebar - Lessons List */}
-      <aside className={`w-full lg:w-80 border-r shrink-0 flex flex-col h-screen sticky top-0 z-20 ${isIron ? 'bg-iron-dark border-iron-blue/10' : 'bg-matrix-black border-matrix-green/10'}`}>
-        <div className="p-6 border-b border-white/5 flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity">
-              <ArrowLeft size={16} /> Voltar
-            </button>
-            <div className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${isIron ? 'bg-iron-blue/10 text-iron-blue' : 'bg-matrix-green/10 text-matrix-green'}`}>
-              {completedIds.length}/{lessons.length} Concluído
-            </div>
-          </div>
-          
-          <button 
-             onClick={() => navigate(`/certificate/${courseId}`)}
-             className={`w-full px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest flex justify-center items-center gap-2 ${isIron ? 'ironman-btn' : 'matrix-btn'}`}
-          >
-            <Trophy size={16} /> Acessar Meu Certificado
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
-          <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-40 mb-4 px-2">Conteúdo do Módulo</h3>
-          {lessons.map((lesson, i) => (
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <>
+            {/* Mobile Overlay */}
             <motion.div
-              key={lesson.id}
-              whileHover={{ x: 4 }}
-              onClick={() => setSelectedLessonIndex(i)}
-              className={`p-4 rounded-xl border cursor-pointer transition-all duration-500 group ${
-                selectedLessonIndex === i 
-                  ? (isIron ? 'bg-iron-blue/10 border-iron-blue/40 shadow-[0_0_20px_rgba(0,212,255,0.1)]' : 'bg-matrix-green/10 border-matrix-green/40 shadow-[0_0_20px_rgba(0,255,65,0.1)]')
-                  : 'bg-white/5 border-transparent hover:bg-white/10'
-              }`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsSidebarOpen(false)}
+              className="fixed inset-0 bg-black/80 z-[45] lg:hidden backdrop-blur-sm"
+            />
+            
+            <motion.aside
+              initial={{ x: -320, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -320, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className={`fixed lg:sticky left-0 top-0 h-screen z-50 w-80 border-r shrink-0 flex flex-col ${isIron ? 'bg-iron-dark border-iron-blue/10' : 'bg-matrix-black border-matrix-green/10'}`}
             >
-              <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold border shrink-0 ${
-                  completedIds.includes(lesson.id)
-                    ? (isIron ? 'bg-iron-blue text-black border-iron-blue' : 'bg-matrix-green text-black border-matrix-green')
-                    : 'border-white/10 opacity-40'
-                }`}>
-                  {completedIds.includes(lesson.id) ? <CheckCircle size={14} /> : i + 1}
-                </div>
-                <div className="min-w-0">
-                  <p className={`text-sm font-bold truncate ${selectedLessonIndex === i ? 'text-white' : 'text-gray-400'}`}>{lesson.title}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Video size={10} className="opacity-40" />
-                    <span className="text-[10px] opacity-40 uppercase font-mono">{lesson.duration}</span>
+              <div className="p-6 border-b border-white/5 flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <button 
+                    onClick={() => {
+                      if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                        setIsSidebarOpen(false);
+                      } else {
+                        navigate('/dashboard');
+                      }
+                    }} 
+                    className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity"
+                  >
+                    <ArrowLeft size={16} /> {typeof window !== 'undefined' && window.innerWidth < 1024 ? 'Fechar' : 'Voltar'}
+                  </button>
+                  <div className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${isIron ? 'bg-iron-blue/10 text-iron-blue' : 'bg-matrix-green/10 text-matrix-green'}`}>
+                    {completedIds.length}/{lessons.length} Concluído
                   </div>
                 </div>
+                
+                <button 
+                   onClick={() => navigate(`/certificate/${courseId}`)}
+                   className={`w-full px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest flex justify-center items-center gap-2 ${isIron ? 'ironman-btn' : 'matrix-btn'}`}
+                >
+                  <Trophy size={16} /> Acessar Meu Certificado
+                </button>
               </div>
-            </motion.div>
-          ))}
-        </div>
-      </aside>
+
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
+                <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-40 mb-4 px-2">Conteúdo do Módulo</h3>
+                {lessons.map((lesson, i) => (
+                  <motion.div
+                    key={lesson.id}
+                    whileHover={{ x: 4 }}
+                    onClick={() => {
+                      setSelectedLessonIndex(i);
+                      if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                        setIsSidebarOpen(false);
+                      }
+                    }}
+                    className={`p-4 rounded-xl border cursor-pointer transition-all duration-500 group ${
+                      selectedLessonIndex === i 
+                        ? (isIron ? 'bg-iron-blue/10 border-iron-blue/40 shadow-[0_0_20px_rgba(0,212,255,0.1)]' : 'bg-matrix-green/10 border-matrix-green/40 shadow-[0_0_20px_rgba(0,255,65,0.1)]')
+                        : 'bg-white/5 border-transparent hover:bg-white/10'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold border shrink-0 ${
+                        completedIds.includes(lesson.id)
+                          ? (isIron ? 'bg-iron-blue text-black border-iron-blue' : 'bg-matrix-green text-black border-matrix-green')
+                          : 'border-white/10 opacity-40'
+                      }`}>
+                        {completedIds.includes(lesson.id) ? <CheckCircle size={14} /> : i + 1}
+                      </div>
+                      <div className="min-w-0">
+                        <p className={`text-sm font-bold truncate ${selectedLessonIndex === i ? 'text-white' : 'text-gray-400'}`}>{lesson.title}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Video size={10} className="opacity-40" />
+                          <span className="text-[10px] opacity-40 uppercase font-mono">{lesson.duration}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Main Content - Video & Interaction */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -346,7 +382,18 @@ export const VirtualRoom: React.FC = () => {
 
         {/* Interaction Section (Tabs) */}
         <section className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex border-b border-white/5 px-6">
+          <div className="flex border-b border-white/5 px-4 md:px-6 overflow-x-auto whitespace-nowrap custom-scrollbar shrink-0">
+            {!isSidebarOpen && (
+              <button 
+                onClick={() => setIsSidebarOpen(true)}
+                className={`flex items-center gap-2 px-4 py-3 sm:px-6 sm:py-4 text-[10px] font-bold uppercase tracking-widest border-r shrink-0 transition-colors ${
+                  isIron ? 'border-iron-blue/10 text-iron-blue hover:text-white' : 'border-matrix-green/10 text-matrix-green hover:text-white'
+                }`}
+              >
+                <ChevronRight size={14} className="animate-pulse shrink-0" />
+                <span>Aulas</span>
+              </button>
+            )}
             {[
               { id: 'questions', label: 'Dúvidas & J-New', icon: MessageSquare },
               { id: 'description', label: 'Descrição', icon: FileText },
@@ -356,12 +403,12 @@ export const VirtualRoom: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-6 py-4 text-[10px] font-bold uppercase tracking-widest transition-all relative ${
+                className={`flex items-center gap-2 px-4 py-3 gap-1 sm:px-6 sm:py-4 text-[10px] font-bold uppercase tracking-widest transition-all relative shrink-0 ${
                   activeTab === tab.id ? (isIron ? 'text-iron-blue' : 'text-matrix-green') : 'text-gray-500 hover:text-gray-300'
                 }`}
               >
-                <tab.icon size={14} />
-                {tab.label}
+                <tab.icon size={14} className="shrink-0" />
+                <span>{tab.label}</span>
                 {activeTab === tab.id && (
                   <motion.div 
                     layoutId="activeTab"

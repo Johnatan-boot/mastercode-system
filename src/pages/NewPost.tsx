@@ -17,6 +17,8 @@ export const NewPost: React.FC = () => {
   const [content, setContent] = useState('');
   const [type, setType] = useState('article');
   const [image, setImage] = useState('https://images.unsplash.com/photo-1547658719-da2b51169166?auto=format&fit=crop&q=80&w=800');
+  const [videoUrl, setVideoUrl] = useState('');
+  const [audioUrl, setAudioUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const handleSave = async (e: React.FormEvent) => {
@@ -37,8 +39,10 @@ export const NewPost: React.FC = () => {
         authorRole: user.role || 'Member',
         type,
         image,
-        hasAudio: type === 'podcast',
-        hasVideo: type === 'video',
+        videoUrl: type === 'video' ? videoUrl : '',
+        audioUrl: type === 'podcast' ? audioUrl : '',
+        hasAudio: type === 'podcast' || !!audioUrl,
+        hasVideo: type === 'video' || !!videoUrl,
         createdAt: new Date().toISOString(), // Fallback for list sorting if serverTimestamp is slow
         serverCreatedAt: serverTimestamp(),
         tags: ['#mastercode', `#${type}`],
@@ -88,7 +92,7 @@ export const NewPost: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className={`p-6 md:p-8 rounded-2xl border space-y-8 ${isIron ? 'border-iron-blue/10 bg-iron-dark/30' : 'border-matrix-green/10 bg-matrix-black/30'}`}
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <label className="block text-xs font-bold uppercase tracking-widest opacity-60">Título da Publicação</label>
             <input 
@@ -114,22 +118,41 @@ export const NewPost: React.FC = () => {
           </div>
         </div>
 
-        <div className="space-y-4">
-          <label className="block text-xs font-bold uppercase tracking-widest opacity-60">Mídias de Capa e Conteúdo</label>
-          <div className="flex flex-wrap gap-4">
-             <button type="button" className={`flex-1 min-w-[140px] px-6 py-4 rounded-xl border border-dashed flex flex-col items-center justify-center gap-3 transition-colors ${isIron ? 'border-iron-blue/30 hover:bg-iron-blue/5 text-iron-blue' : 'border-matrix-green/30 hover:bg-matrix-green/5 text-matrix-green'}`}>
-                <ImageIcon size={24} />
-                <span className="text-[10px] font-bold uppercase tracking-widest">Imagem de Capa</span>
-             </button>
-             <button type="button" className={`flex-1 min-w-[140px] px-6 py-4 rounded-xl border border-dashed flex flex-col items-center justify-center gap-3 transition-colors ${isIron ? 'border-iron-blue/30 hover:bg-iron-blue/5 text-iron-blue' : 'border-matrix-green/30 hover:bg-matrix-green/5 text-matrix-green'}`}>
-                <Mic size={24} />
-                <span className="text-[10px] font-bold uppercase tracking-widest">Anexar Podcast</span>
-             </button>
-             <button type="button" className={`flex-1 min-w-[140px] px-6 py-4 rounded-xl border border-dashed flex flex-col items-center justify-center gap-3 transition-colors ${isIron ? 'border-iron-blue/30 hover:bg-iron-blue/5 text-iron-blue' : 'border-matrix-green/30 hover:bg-matrix-green/5 text-matrix-green'}`}>
-                <Video size={24} />
-                <span className="text-[10px] font-bold uppercase tracking-widest">Vídeo Aula / Vlog</span>
-             </button>
+        {type === 'video' && (
+          <div className="space-y-4">
+            <label className="block text-xs font-bold uppercase tracking-widest opacity-60">Link do Vídeo (YouTube)</label>
+            <input 
+              type="text" 
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              placeholder="Ex: https://www.youtube.com/watch?v=..."
+              className={`w-full px-4 py-3 rounded-xl bg-transparent border font-mono outline-none transition-all ${isIron ? 'border-iron-blue/30 focus:border-iron-blue text-white' : 'border-matrix-green/30 focus:border-matrix-green text-white'}`}
+            />
           </div>
+        )}
+
+        {type === 'podcast' && (
+          <div className="space-y-4">
+            <label className="block text-xs font-bold uppercase tracking-widest opacity-60">Link do Áudio</label>
+            <input 
+              type="text" 
+              value={audioUrl}
+              onChange={(e) => setAudioUrl(e.target.value)}
+              placeholder="Ex: Link do arquivo .mp3 ou Soundcloud..."
+              className={`w-full px-4 py-3 rounded-xl bg-transparent border font-mono outline-none transition-all ${isIron ? 'border-iron-blue/30 focus:border-iron-blue text-white' : 'border-matrix-green/30 focus:border-matrix-green text-white'}`}
+            />
+          </div>
+        )}
+
+        <div className="space-y-4">
+          <label className="block text-xs font-bold uppercase tracking-widest opacity-60">URL da Imagem de Capa</label>
+          <input 
+            type="text" 
+            value={image}
+            onChange={(e) => setImage(e.target.value)}
+            placeholder="Link da imagem (Unsplash, etc)..."
+            className={`w-full px-4 py-3 rounded-xl bg-transparent border font-mono outline-none transition-all ${isIron ? 'border-iron-blue/30 focus:border-iron-blue text-white' : 'border-matrix-green/30 focus:border-matrix-green text-white'}`}
+          />
         </div>
 
         <div className="space-y-4 pt-4 border-t border-white/10">

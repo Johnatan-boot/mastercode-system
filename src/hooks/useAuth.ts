@@ -18,29 +18,58 @@ export function useAuth() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        // Fetch additional user data from Firestore if needed
-        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-        if (userDoc.exists()) {
-          setUser({ uid: firebaseUser.uid, ...firebaseUser, ...userDoc.data() });
-        } else {
-          // New user (from Google or just created)
-          const newUser = {
-            uid: firebaseUser.uid,
-            email: firebaseUser.email,
-            displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0],
-            photoURL: firebaseUser.photoURL,
-            role: 'Builder',
-            createdAt: new Date().toISOString(),
-            xp: 0,
-            level: 1
-          };
-          await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
-          setUser(newUser);
+        // Opstimistic/Immediate update of basic credentials to avoid blocking the initial screen render
+        setUser((prev: any) => ({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0],
+          name: firebaseUser.displayName || firebaseUser.email?.split('@')[0],
+          photoURL: firebaseUser.photoURL,
+          role: prev?.role || 'Builder',
+          xp: prev?.xp || 0,
+          level: prev?.level || 1,
+          createdAt: prev?.createdAt || new Date().toISOString(),
+          ...prev
+        }));
+        setLoading(false);
+
+        // Fetch / set additional user data from Firestore in the background
+        try {
+          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          if (userDoc.exists()) {
+            setUser((prev: any) => ({
+              ...prev,
+              ...userDoc.data(),
+              uid: firebaseUser.uid, // guarantee UID is preserved
+              name: userDoc.data().displayName || userDoc.data().name || prev?.name
+            }));
+          } else {
+            // Document doesn't exist, create it in the background
+            const newUser = {
+              uid: firebaseUser.uid,
+              email: firebaseUser.email,
+              displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0],
+              name: firebaseUser.displayName || firebaseUser.email?.split('@')[0],
+              photoURL: firebaseUser.photoURL,
+              role: 'Builder',
+              createdAt: new Date().toISOString(),
+              xp: 0,
+              level: 1
+            };
+            try {
+              await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
+            } catch (writeErr) {
+              console.error("Firestore setDoc failed:", writeErr);
+            }
+            setUser(newUser);
+          }
+        } catch (error) {
+          console.error("Error in background Firestore user fetching:", error);
         }
       } else {
         setUser(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();

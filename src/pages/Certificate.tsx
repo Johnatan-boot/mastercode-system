@@ -131,7 +131,7 @@ export const Certificate: React.FC = () => {
             </p>
             
             <h2 className={`text-4xl md:text-5xl font-bold uppercase tracking-widest my-6 ${isIron ? 'text-iron-blue drop-shadow-[0_0_5px_rgba(0,212,255,0.8)]' : 'text-matrix-green drop-shadow-[0_0_5px_rgba(0,255,65,0.8)]'}`}>
-              {user?.name || 'CONSTRUTOR MASTER'}
+              {user?.displayName || user?.name || 'johnatan Quenes'} - Aluno
             </h2>
 
             <p className="text-lg md:text-xl text-gray-600 mt-2 mb-8 font-mono max-w-3xl">

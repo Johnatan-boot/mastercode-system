@@ -42,6 +42,8 @@ service cloud.firestore {
              (data.has('excerpt') ? data.excerpt is string && data.excerpt.size() <= 1000 : true) &&
              (data.has('content') ? data.content is string && data.content.size() <= 65536 : true) &&
              (data.has('image') ? data.image is string && data.image.size() <= 500 : true) &&
+             (data.has('videoUrl') ? data.videoUrl is string && data.videoUrl.size() <= 500 : true) &&
+             (data.has('audioUrl') ? data.audioUrl is string && data.audioUrl.size() <= 500 : true) &&
              (data.has('tags') ? data.tags is list && data.tags.size() <= 10 : true);
     }
 
@@ -73,7 +75,7 @@ service cloud.firestore {
                       incoming().createdAt == existing().createdAt && // CreatedAt immutable
                       incoming().updatedAt == request.time &&
                       // Limit what can be updated
-                      incoming().diff(existing()).affectedKeys().hasOnly(['title', 'excerpt', 'content', 'image', 'tags', 'hasAudio', 'hasVideo', 'updatedAt', 'likes', 'comments']);
+                      incoming().diff(existing()).affectedKeys().hasOnly(['title', 'excerpt', 'content', 'image', 'videoUrl', 'audioUrl', 'tags', 'hasAudio', 'hasVideo', 'updatedAt', 'likes', 'comments']);
       
       allow delete: if isEmailVerified() && isOwner(existing().authorId);
     }
@@ -83,18 +85,17 @@ service cloud.firestore {
       allow get: if isSignedIn();
       allow list: if isSignedIn() && isAdmin(); // Only admins can list users if implemented
       
-      allow create: if isEmailVerified() && 
+      allow create: if isSignedIn() && 
                       isValidId(uid) && 
                       isOwner(uid) && 
-                      isValidUser(incoming()) &&
-                      incoming().createdAt == request.time;
+                      isValidUser(incoming());
       
-      allow update: if isEmailVerified() && 
+      allow update: if isSignedIn() && 
                       isOwner(uid) && 
                       isValidUser(incoming()) &&
                       incoming().uid == existing().uid &&
                       incoming().createdAt == existing().createdAt &&
-                      incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'role']);
+                      incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'role', 'xp', 'level']);
     }
 
     // Admin helper (placeholder if ever needed)
