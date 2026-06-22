@@ -6,6 +6,51 @@ import { Newspaper, Video, Mic, ArrowRight, PlusCircle, Search, Calendar, Chevro
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 
+const FALLBACK_POSTS = [
+  {
+    id: 'fallback-1',
+    title: 'Criação de Design Systems - Frontend',
+    excerpt: 'Um design system no contexto do frontend é uma abordagem estruturada e sistemática para projetar e desenvolver...',
+    author: 'Johnatan Quenes',
+    authorRole: 'Senior Developer',
+    type: 'article',
+    image: 'https://images.unsplash.com/photo-1587560699334-bea5356ac8ce?auto=format&fit=crop&q=80&w=800',
+    tags: ['Design Systems', 'Frontend'],
+    likes: 124,
+    comments: 18,
+    readTime: '5 min de leitura',
+    date: '21/06/2026'
+  },
+  {
+    id: 'fallback-2',
+    title: 'Micro Front-end: Web Components com Angular',
+    excerpt: 'Essa é a segunda parte de uma série de artigos sobre Micro Front-ends utilizando custom elements...',
+    author: 'Johnatan Quenes dos Santos',
+    authorRole: 'Tech Lead',
+    type: 'article',
+    image: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&q=80&w=800',
+    tags: ['Micro Front-end', 'Angular'],
+    likes: 85,
+    comments: 12,
+    readTime: '8 min de leitura',
+    date: '18/06/2026'
+  },
+  {
+    id: 'fallback-3',
+    title: 'Web Components: Reutilização Nativa',
+    excerpt: 'Web Components buscam resolver problemas de reutilização de código no desenvolvimento de páginas...',
+    author: 'Johnatan Quenes',
+    authorRole: 'Senior Developer',
+    type: 'article',
+    image: 'https://images.unsplash.com/photo-1547658719-da2b51169166?auto=format&fit=crop&q=80&w=800',
+    tags: ['Web Components', 'Frontend'],
+    likes: 92,
+    comments: 7,
+    readTime: '6 min de leitura',
+    date: '15/06/2026'
+  }
+];
+
 export const BlogList: React.FC = () => {
   const { theme } = useTheme();
   const isIron = theme === 'ironman';
@@ -22,10 +67,15 @@ export const BlogList: React.FC = () => {
         id: doc.id,
         ...doc.data()
       }));
-      setPosts(postsData);
+      if (postsData.length === 0) {
+        setPosts(FALLBACK_POSTS);
+      } else {
+        setPosts(postsData);
+      }
       setLoading(false);
     }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'posts');
+      console.warn("Firestore error listing posts, using beautiful local fallback content:", error);
+      setPosts(FALLBACK_POSTS);
       setLoading(false);
     });
 

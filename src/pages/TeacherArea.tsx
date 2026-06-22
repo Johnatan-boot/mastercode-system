@@ -27,9 +27,9 @@ export const TeacherArea: React.FC = () => {
               <BookOpen size={20} className={isIron ? 'text-iron-blue' : 'text-matrix-green'} /> Módulos Ativos
             </h3>
             <div className="space-y-4">
-              <TeacherCourseItem isIron={isIron} title="Dominando a Matrix" students={1240} lessons={12} status="Ativo" />
-              <TeacherCourseItem isIron={isIron} title="Protocolos de Segurança de Zion" students={850} lessons={8} status="Rascunho" />
-              <TeacherCourseItem isIron={isIron} title="Sabedoria da Oráculo: Integração IA" students={2100} lessons={15} status="Ativo" />
+              <TeacherCourseItem isIron={isIron} title="Curso de HTML5: Dominando a Matrix" students={1240} lessons={12} status="Ativo" />
+              <TeacherCourseItem isIron={isIron} title="Curso de CSS3: Estilo e Fluidez" students={850} lessons={10} status="Ativo" />
+              <TeacherCourseItem isIron={isIron} title="Curso de JavaScript: Lógica Avançada" students={2100} lessons={10} status="Ativo" />
             </div>
           </div>
 

@@ -13,6 +13,80 @@ function getYouTubeId(url: string) {
   return (match && match[2].length === 11) ? match[2] : null;
 }
 
+const FALLBACK_POSTS: Record<string, any> = {
+  'fallback-1': {
+    id: 'fallback-1',
+    title: 'Criação de Design Systems - Frontend',
+    content: `Um design system no contexto do frontend é uma abordagem estruturada e sistemática para projetar e desenvolver interfaces de usuário consistentes em um aplicativo ou site.
+
+### Origem do Design System
+Grandes empresas, como Google, Airbnb e Salesforce, começaram a desenvolver suas próprias soluções internas para lidar com a complexidade e a falta de consistência em seus projetos.
+
+### Benefícios do Design System
+- **Consistência Visual**: Garante uma aparência e sensação unificadas em todo o produto digital.
+- **Eficiência no Desenvolvimento**: Promove a reutilização sistemática de componentes e códigos prontos.
+- **Colaboração Eficiente**: Estreita as pontes de comunicação e colaboração direta entre designers e desenvolvedores frontend.
+- **Manutenibilidade Simplificada**: Permite correções e atualizações globais efetuadas em apenas um componente base do repositório.`,
+    excerpt: 'Um design system no contexto do frontend é uma abordagem estruturada e sistemática...',
+    author: 'Johnatan Quenes',
+    authorRole: 'Senior Developer',
+    type: 'article',
+    image: 'https://images.unsplash.com/photo-1587560699334-bea5356ac8ce?auto=format&fit=crop&q=80&w=800',
+    tags: ['Design Systems', 'Frontend'],
+    likes: 124,
+    comments: 18,
+    readTime: '5 min de leitura',
+    createdAt: '2026-06-21T18:00:00Z'
+  },
+  'fallback-2': {
+    id: 'fallback-2',
+    title: 'Micro Front-end: Web Components com Angular',
+    content: `Implementando arquiteturas modernas de Micro Frontends utilizando a tecnologia Angular Elements para empacotar componentes da nossa aplicação como Web Components nativos executáveis.
+
+### O que são Angular Elements?
+Angular Elements é a especificação e o ecossistema nativo do time do Angular que permite transpilar e encapsular componentes inteligentes em Custom Elements nativos do navegador.
+
+### Passo a Passo de Setup
+Basta adicionar o pacote ao seu repositório Angular:
+
+\`\`\`bash
+ng add @angular/elements
+\`\`\`
+
+Isso permite modularizar e carregar partes independentes da sua aplicação, delegando ao framework a compilação de saídas agnósticas.`,
+    excerpt: 'Essa é a segunda parte de uma série de artigos sobre Micro Front-ends utilizando Angular Elements...',
+    author: 'Johnatan Quenes dos Santos',
+    authorRole: 'Tech Lead',
+    type: 'article',
+    image: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&q=80&w=800',
+    tags: ['Micro Front-end', 'Angular'],
+    likes: 85,
+    comments: 12,
+    readTime: '8 min de leitura',
+    createdAt: '2026-06-18T18:00:00Z'
+  },
+  'fallback-3': {
+    id: 'fallback-3',
+    title: 'Web Components: Reutilização Nativa',
+    content: `As especificações de Web Components constituem um conjunto de tecnologias nativas do W3C que nos permitem estender as capacidades nativas do HTML.
+
+### Os Pilares do Padrão
+1. **Custom Elements**: Conjunto de APIs JavaScript para definir novos tipos de tags HTML personalizadas.
+2. **Shadow DOM**: Isolamento robusto de escopo CSS e árvore DOM, evitando vazamento de estilos de design.
+3. **Templates HTML**: Elementos de marcação que permanecem invisíveis até que sejam instanciados programaticamente.`,
+    excerpt: 'Web Components buscam resolver problemas de reutilização de código de modo nativo...',
+    author: 'Johnatan Quenes',
+    authorRole: 'Senior Developer',
+    type: 'article',
+    image: 'https://images.unsplash.com/photo-1547658719-da2b51169166?auto=format&fit=crop&q=80&w=800',
+    tags: ['Web Components', 'Frontend'],
+    likes: 92,
+    comments: 7,
+    readTime: '6 min de leitura',
+    createdAt: '2026-06-15T18:00:00Z'
+  }
+};
+
 export const BlogPost: React.FC = () => {
   const { theme } = useTheme();
   const isIron = theme === 'ironman';
@@ -26,13 +100,25 @@ export const BlogPost: React.FC = () => {
   useEffect(() => {
     async function fetchPost() {
       if (!id) return;
+      
+      // If it's a fallback static ID
+      if (id.startsWith('fallback-')) {
+        setPost(FALLBACK_POSTS[id] || null);
+        setLoading(false);
+        return;
+      }
+
       try {
         const docSnap = await getDoc(doc(db, 'posts', id));
         if (docSnap.exists()) {
           setPost({ id: docSnap.id, ...docSnap.data() });
+        } else {
+          // Fallback if document not found in Firestore
+          setPost(FALLBACK_POSTS[id] || null);
         }
       } catch (error) {
-        handleFirestoreError(error, OperationType.GET, `posts/${id}`);
+        console.warn("Firestore error getting post details, checking local fallback: ", error);
+        setPost(FALLBACK_POSTS[id] || null);
       } finally {
         setLoading(false);
       }

@@ -37,14 +37,20 @@ export const CourseArea: React.FC = () => {
   }, [user]);
 
   const getProgress = (courseId: string) => {
-    // Check if userProgress is an array before filtering
     if (!Array.isArray(userProgress)) return 0;
     
-    // This is a simplified progress calculation
-    // In a real app, you'd check how many lessons in this course are completed
-    const completedInCourse = userProgress.filter(p => p.lessonId && p.lessonId.startsWith('les-')).length;
-    // Mocking progress for now based on the course
-    if (courseId === 'matrix-mastery') return Math.min(Math.round((completedInCourse / 2) * 100), 100);
+    if (courseId === 'matrix-mastery') {
+      const completed = userProgress.filter(p => p.lessonId && p.lessonId.startsWith('html5-')).length;
+      return Math.min(Math.round((completed / 12) * 100), 100);
+    }
+    if (courseId === 'css-mastery') {
+      const completed = userProgress.filter(p => p.lessonId && p.lessonId.startsWith('css-')).length;
+      return Math.min(Math.round((completed / 10) * 100), 100);
+    }
+    if (courseId === 'js-mastery') {
+      const completed = userProgress.filter(p => p.lessonId && p.lessonId.startsWith('js-')).length;
+      return Math.min(Math.round((completed / 10) * 100), 100);
+    }
     return 0;
   };
 

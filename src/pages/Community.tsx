@@ -22,12 +22,62 @@ export const Community: React.FC = () => {
       orderBy('createdAt', 'desc')
     );
 
+    const FALLBACK_DISCUSSIONS = [
+      {
+        id: 'fallback-1',
+        title: 'Criação de Design Systems - Frontend',
+        excerpt: 'Um design system no contexto do frontend é uma abordagem estruturada e sistemática para projetar e desenvolver...',
+        author: 'Johnatan Quenes',
+        authorRole: 'Senior Developer',
+        type: 'article',
+        image: 'https://images.unsplash.com/photo-1587560699334-bea5356ac8ce?auto=format&fit=crop&q=80&w=800',
+        tags: ['Design Systems', 'Frontend'],
+        likes: 124,
+        comments: 18,
+        createdAt: '2026-06-21T18:00:00Z'
+      },
+      {
+        id: 'fallback-2',
+        title: 'Micro Front-end: Web Components com Angular',
+        excerpt: 'Essa é a segunda parte de uma série de artigos sobre Micro Front-ends utilizando custom elements...',
+        author: 'Johnatan Quenes dos Santos',
+        authorRole: 'Tech Lead',
+        type: 'article',
+        image: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&q=80&w=800',
+        tags: ['Micro Front-end', 'Angular'],
+        likes: 85,
+        comments: 12,
+        createdAt: '2026-06-18T18:00:00Z'
+      },
+      {
+        id: 'fallback-3',
+        title: 'Web Components: Reutilização Nativa',
+        excerpt: 'Web Components buscam resolver problemas de reutilização de código de modo nativo...',
+        author: 'Johnatan Quenes',
+        authorRole: 'Senior Developer',
+        type: 'article',
+        image: 'https://images.unsplash.com/photo-1547658719-da2b51169166?auto=format&fit=crop&q=80&w=800',
+        tags: ['Web Components', 'Frontend'],
+        likes: 92,
+        comments: 7,
+        createdAt: '2026-06-15T18:00:00Z'
+      }
+    ];
+
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const postsData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-      setPosts(postsData);
+      if (postsData.length === 0) {
+        setPosts(FALLBACK_DISCUSSIONS);
+      } else {
+        setPosts(postsData);
+      }
+      setLoading(false);
+    }, (error) => {
+      console.warn("Firestore error listing community posts, using beautiful local fallback content:", error);
+      setPosts(FALLBACK_DISCUSSIONS);
       setLoading(false);
     });
 

@@ -37,7 +37,7 @@ import { Sun, Moon, Zap, Volume2, VolumeX } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 function AppContent() {
-  const { theme, toggleTheme, isMuted, toggleMute } = useTheme();
+  const { theme, toggleTheme, isMuted, toggleMute, audioError } = useTheme();
 
   useEffect(() => {
     seedDatabase();
@@ -61,39 +61,53 @@ function AppContent() {
       <div className={`scanline ${theme === 'ironman' ? 'scanline-iron' : ''}`} />
       
       {/* Theme & Sound Controls */}
-      <div className="fixed top-6 right-6 z-[60] flex items-center gap-2">
-        {/* Mute Toggle */}
-        <button
-          onClick={toggleMute}
-          title={isMuted ? "Ativar som" : "Desativar som"}
-          className={`p-2 rounded-full border transition-all duration-300 bg-black/80 backdrop-blur-md ${
-            isMuted ? 'opacity-40 hover:opacity-100' : 'opacity-100'
-          }`}
-          style={{ 
-            borderColor: theme === 'matrix' ? '#00FF41' : '#00D4FF',
-            color: theme === 'matrix' ? '#00FF41' : '#00D4FF',
-          }}
-        >
-          {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-        </button>
+      <div className="fixed top-6 right-6 z-[60] flex flex-col items-end gap-2">
+        <div className="flex items-center gap-2">
+          {/* Mute Toggle */}
+          <button
+            onClick={toggleMute}
+            title={isMuted ? "Ativar som" : "Desativar som"}
+            className={`p-2 rounded-full border transition-all duration-300 bg-black/80 backdrop-blur-md ${
+              isMuted ? 'opacity-40 hover:opacity-100' : 'opacity-100'
+            }`}
+            style={{ 
+              borderColor: theme === 'matrix' ? '#00FF41' : '#00D4FF',
+              color: theme === 'matrix' ? '#00FF41' : '#00D4FF',
+            }}
+          >
+            {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+          </button>
 
-        {/* Theme Toggle Capsule */}
-        <button 
-          onClick={handleThemeToggle}
-          className="flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all duration-300 bg-black/80 backdrop-blur-md group"
-          style={{ 
-            borderColor: theme === 'matrix' ? '#00FF41' : '#00D4FF',
-            color: theme === 'matrix' ? '#00FF41' : '#00D4FF',
-            boxShadow: theme === 'matrix' ? '0 0 15px rgba(0,255,65,0.3)' : '0 0 15px rgba(0,212,255,0.3)'
-          }}
-        >
-          <div className="flex items-center gap-2">
-            {theme === 'matrix' ? <Zap size={16} /> : <Sun size={16} />}
-            <span className="text-[10px] font-bold uppercase tracking-widest">
-              {theme === 'matrix' ? 'Protocolo Matrix' : 'Protocolo Stark'}
-            </span>
+          {/* Theme Toggle Capsule */}
+          <button 
+            onClick={handleThemeToggle}
+            className="flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all duration-300 bg-black/80 backdrop-blur-md group"
+            style={{ 
+              borderColor: theme === 'matrix' ? '#00FF41' : '#00D4FF',
+              color: theme === 'matrix' ? '#00FF41' : '#00D4FF',
+              boxShadow: theme === 'matrix' ? '0 0 15px rgba(0,255,65,0.3)' : '0 0 15px rgba(0,212,255,0.3)'
+            }}
+          >
+            <div className="flex items-center gap-2">
+              {theme === 'matrix' ? <Zap size={16} /> : <Sun size={16} />}
+              <span className="text-[10px] font-bold uppercase tracking-widest">
+                {theme === 'matrix' ? 'Protocolo Matrix' : 'Protocolo Stark'}
+              </span>
+            </div>
+          </button>
+        </div>
+
+        {audioError && (
+          <div 
+            className="px-3 py-1.5 rounded-md text-[10px] font-mono text-center max-w-xs bg-black/90 border border-red-500/50 backdrop-blur-md shadow-lg animate-pulse"
+            style={{
+              color: theme === 'matrix' ? '#00FF41' : '#00D4FF',
+              borderColor: theme === 'matrix' ? 'rgba(0, 255, 65, 0.4)' : 'rgba(0, 212, 255, 0.4)'
+            }}
+          >
+            {audioError}
           </div>
-        </button>
+        )}
       </div>
 
       <Routes>

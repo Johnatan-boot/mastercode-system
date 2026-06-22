@@ -83,16 +83,25 @@ Web Components é uma suíte de tecnologias que permite a criação de elementos
 ];
 
 export async function seedDatabase() {
-  const postsRef = collection(db, 'posts');
-  const snapshot = await getDocs(postsRef);
-  
-  if (snapshot.empty) {
-    console.log('Seeding database with initial posts...');
-    for (const post of INITIAL_POSTS) {
-      await addDoc(postsRef, {
-        ...post,
-        serverCreatedAt: serverTimestamp()
-      });
+  try {
+    const postsRef = collection(db, 'posts');
+    const snapshot = await getDocs(postsRef);
+    
+    if (snapshot.empty) {
+      console.log('Seeding database with initial posts...');
+      for (const post of INITIAL_POSTS) {
+        try {
+          await addDoc(postsRef, {
+            ...post,
+            authorId: "system",
+            serverCreatedAt: serverTimestamp()
+          });
+        } catch (postErr) {
+          console.warn('Could not seed individual post:', postErr);
+        }
+      }
     }
+  } catch (error) {
+    console.warn('Could not seed database or check snapshot:', error);
   }
 }
